@@ -10,6 +10,9 @@ require (
 	github.com/packethost/pkg v0.0.0-20190715213007-7c3a64b4b5e3
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.5.1
+	github.com/sebest/xff v0.0.0-20160910043805-6c115e0ffa35
 	github.com/tinkerbell/tink v0.0.0-20200708073808-997394055483
 	google.golang.org/grpc v1.29.1
 )
+
+replace github.com/sebest/xff v0.0.0-20160910043805-6c115e0ffa35 => github.com/packethost/xff v0.0.0-20190305172552-d3e9190c41b3

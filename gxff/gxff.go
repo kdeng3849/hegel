@@ -13,6 +13,8 @@ import (
 	"google.golang.org/grpc/peer"
 )
 
+var TrustedProxies = parseTrustedProxies()
+
 // converts a list of subnets' string to a list of net.IPNet.
 func toMasks(ips []string) ([]net.IPNet, error) {
 	var nets []net.IPNet
@@ -121,7 +123,7 @@ func parseTrustedProxies() []string {
 // If allowedSubnets is nil and TRUSTED_PROXIES is empty then X-FORWARDED-FOR will be ignored (no proxy is trusted).
 func New(l log.Logger, allowedSubnets []string) (grpc.StreamServerInterceptor, grpc.UnaryServerInterceptor) {
 	if allowedSubnets == nil {
-		allowedSubnets = parseTrustedProxies()
+		allowedSubnets = TrustedProxies
 		if allowedSubnets == nil {
 			streamer := func(srv interface{}, ss grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
 				return handler(srv, ss)

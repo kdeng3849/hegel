@@ -4,6 +4,8 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/sebest/xff"
 	"net"
 	"net/http"
 	"os"
@@ -23,7 +25,6 @@ import (
 	"github.com/packethost/pkg/env"
 	"github.com/packethost/pkg/log"
 	"github.com/pkg/errors"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
 	tinkClient "github.com/tinkerbell/tink/client"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
@@ -247,10 +248,36 @@ func main() {
 
 	// Register grpc prometheus server
 	grpc_prometheus.Register(grpcServer)
-	http.Handle("/metrics", promhttp.Handler())
-	http.HandleFunc("/_packet/healthcheck", healthCheckHandler)
-	http.HandleFunc("/_packet/version", versionHandler)
-	http.HandleFunc("/metadata", getMetadata)
+	ServeHTTP()
+
+	metrics.State.Set(metrics.Ready)
+	//Serving GRPC
+	logger.Info("serving grpc")
+	err = grpcServer.Serve(lis)
+	if err != nil {
+		logger.Fatal(err, "Failed to serve  grpc")
+	}
+}
+
+
+func ServeHTTP() {
+	mux := http.NewServeMux()
+	mux.Handle("/metrics", promhttp.Handler())
+	mux.HandleFunc("/_packet/healthcheck", healthCheckHandler)
+	mux.HandleFunc("/_packet/version", versionHandler)
+	mux.HandleFunc("/metadata", getMetadata)
+
+	var handler http.Handler
+	if len(gxff.TrustedProxies) > 0 {
+		xffmw, _ := xff.New(xff.Options{
+			AllowedSubnets: gxff.TrustedProxies,
+		})
+
+		handler = xffmw.Handler(mux)
+	} else {
+		handler = mux
+	}
+	http.Handle("/", handler)
 
 	logger.With("port", *metricsPort).Info("Starting http server")
 	go func() {
@@ -260,12 +287,4 @@ func main() {
 			panic(err)
 		}
 	}()
-
-	metrics.State.Set(metrics.Ready)
-	//Serving GRPC
-	logger.Info("serving grpc")
-	err = grpcServer.Serve(lis)
-	if err != nil {
-		logger.Fatal(err, "Failed to serve  grpc")
-	}
 }
