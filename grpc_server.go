@@ -45,12 +45,12 @@ type exportedHardwareCacher struct {
 
 // exportedHardwareTinkerbell is the structure in which hegel returns to clients using the new tinkerbell data model
 // exposes only certain fields of the hardware data returned by tinkerbell
-type exportedHardwareTinkerbell struct {
-	ID       string   `json:"id"`
-	Metadata metadata `json:"metadata"`
-}
+//type exportedHardwareTinkerbell struct {
+//	ID       string   `json:"id"`
+//	Metadata metadata `json:"metadata"`
+//}
 
-type metadata struct {
+type exportedHardwareTinkerbell struct {
 	State        string      `json:"state"`
 	BondingMode  int         `json:"bonding_mode"`
 	Manufacturer interface{} `json:"manufacturer"`
@@ -197,6 +197,22 @@ func exportHardware(hw []byte) ([]byte, error) {
 		return nil, err
 	}
 	return json.Marshal(exported)
+}
+
+// exportMetadata returns the instance field of the metadata field
+func exportMetadata(hw []byte) ([]byte, error) {
+	hwJSON := make(map[string]interface{})
+	err := json.Unmarshal(hw, &hwJSON)
+	if err != nil {
+		return nil, err
+	}
+
+	metadata, ok := hwJSON["metadata"].(map[string]interface{})
+	if !ok {
+		return nil, errors.New("no metadata found") // (kdeng3849) does this constitute an error
+	}
+
+	return json.Marshal(metadata["instance"])
 }
 
 // UnmarshalJSON implements the json.Unmarshaler interface for custom unmarshalling of exportedHardwareCacher
@@ -433,10 +449,11 @@ func getByIP(ctx context.Context, s *server, userIP string) ([]byte, error) {
 
 		hw = []byte(resp.(*cacher.Hardware).JSON)
 	}
-
-	ehw, err := exportHardware(hw)
-	if err != nil {
-		return nil, err
-	}
-	return ehw, nil
+	//
+	//ehw, err := exportHardware(hw)
+	//if err != nil {
+	//	return nil, err
+	//}
+	//return ehw, nil
+	return hw, nil
 }

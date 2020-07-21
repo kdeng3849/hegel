@@ -91,36 +91,36 @@ func TestGetByIPTinkerbell(t *testing.T) {
 		if err != nil {
 			t.Fatal("Error in unmarshalling hardware", err)
 		}
-		if hw.Metadata.State != test.state {
-			t.Fatalf("unexpected state, want: %v, got: %v\n", test.state, hw.Metadata.State)
+		if hw.State != test.state {
+			t.Fatalf("unexpected state, want: %v, got: %v\n", test.state, hw.State)
 		}
-		if hw.Metadata.BondingMode != test.bondingMode {
-			t.Fatalf("unexpected bonding mode, want: %v, got: %v\n", test.bondingMode, hw.Metadata.BondingMode)
+		if hw.BondingMode != test.bondingMode {
+			t.Fatalf("unexpected bonding mode, want: %v, got: %v\n", test.bondingMode, hw.BondingMode)
 		}
-		if len(hw.Metadata.Instance.Storage.Disks) > 0 {
-			if hw.Metadata.Instance.Storage.Disks[0].Device != test.diskDevice {
-				t.Fatalf("unexpected disk device, want: %v, got: %v\n", test.diskDevice, hw.Metadata.Instance.Storage.Disks[0].Device)
+		if len(hw.Instance.Storage.Disks) > 0 {
+			if hw.Instance.Storage.Disks[0].Device != test.diskDevice {
+				t.Fatalf("unexpected disk device, want: %v, got: %v\n", test.diskDevice, hw.Instance.Storage.Disks[0].Device)
 			}
-			if hw.Metadata.Instance.Storage.Disks[0].WipeTable != test.wipeTable {
-				t.Fatalf("unexpected wipe table, want: %v, got: %v\n", test.wipeTable, hw.Metadata.Instance.Storage.Disks[0].WipeTable)
+			if hw.Instance.Storage.Disks[0].WipeTable != test.wipeTable {
+				t.Fatalf("unexpected wipe table, want: %v, got: %v\n", test.wipeTable, hw.Instance.Storage.Disks[0].WipeTable)
 			}
-			if int(hw.Metadata.Instance.Storage.Disks[0].Paritions[0].Size) != test.partitionSize {
-				t.Fatalf("unexpected partition size, want: %v, got: %v\n", test.partitionSize, hw.Metadata.Instance.Storage.Disks[0].Paritions[0].Size)
-			}
-		}
-		if len(hw.Metadata.Instance.Storage.Filesystems) > 0 {
-			if hw.Metadata.Instance.Storage.Filesystems[0].Mount.Device != test.filesystemDevice {
-				t.Fatalf("unexpected filesystem mount device, want: %v, got: %v\n", test.filesystemDevice, hw.Metadata.Instance.Storage.Filesystems[0].Mount.Device)
-			}
-			if hw.Metadata.Instance.Storage.Filesystems[0].Mount.Format != test.filesystemFormat {
-				t.Fatalf("unexpected filesystem mount format, want: %v, got: %v\n", test.filesystemFormat, hw.Metadata.Instance.Storage.Filesystems[0].Mount.Format)
+			if int(hw.Instance.Storage.Disks[0].Paritions[0].Size) != test.partitionSize {
+				t.Fatalf("unexpected partition size, want: %v, got: %v\n", test.partitionSize, hw.Instance.Storage.Disks[0].Paritions[0].Size)
 			}
 		}
-		if hw.Metadata.Instance.OS.OsSlug != test.osSlug {
-			t.Fatalf("unexpected os slug, want: %v, got: %v\n", test.osSlug, hw.Metadata.Instance.OS.OsSlug)
+		if len(hw.Instance.Storage.Filesystems) > 0 {
+			if hw.Instance.Storage.Filesystems[0].Mount.Device != test.filesystemDevice {
+				t.Fatalf("unexpected filesystem mount device, want: %v, got: %v\n", test.filesystemDevice, hw.Instance.Storage.Filesystems[0].Mount.Device)
+			}
+			if hw.Instance.Storage.Filesystems[0].Mount.Format != test.filesystemFormat {
+				t.Fatalf("unexpected filesystem mount format, want: %v, got: %v\n", test.filesystemFormat, hw.Instance.Storage.Filesystems[0].Mount.Format)
+			}
 		}
-		if hw.Metadata.Facility.(map[string]interface{})["plan_slug"] != test.planSlug {
-			t.Fatalf("unexpected os slug, want: %v, got: %v\n", test.planSlug, hw.Metadata.Facility.(map[string]interface{})["plan_slug"])
+		if hw.Instance.OS.OsSlug != test.osSlug {
+			t.Fatalf("unexpected os slug, want: %v, got: %v\n", test.osSlug, hw.Instance.OS.OsSlug)
+		}
+		if hw.Facility.(map[string]interface{})["plan_slug"] != test.planSlug {
+			t.Fatalf("unexpected os slug, want: %v, got: %v\n", test.planSlug, hw.Facility.(map[string]interface{})["plan_slug"])
 		}
 	}
 }

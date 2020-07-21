@@ -69,19 +69,23 @@ func TestGetMetadataTinkerbell(t *testing.T) {
 				status, http.StatusOK)
 		}
 
-		hw := exportedHardwareTinkerbell{}
-		err = json.Unmarshal(resp.Body.Bytes(), &hw)
+		metadata := struct {
+			BondingMode  int `json:"bonding_mode"`
+		}{}
+
+		//metadata := make(map[string]interface{})
+		err = json.Unmarshal(resp.Body.Bytes(), &metadata)
 		if err != nil {
 			t.Error("Error in unmarshalling hardware")
 		}
 
-		if hw.ID != test.id {
-			t.Errorf("handler returned unexpected id: got %v want %v",
-				hw.ID, test.id)
-		}
-		if hw.Metadata.BondingMode != test.bondingMode {
+		//if hw.ID != test.id {
+		//	t.Errorf("handler returned unexpected id: got %v want %v",
+		//		hw.ID, test.id)
+		//}
+		if metadata.BondingMode != test.bondingMode {
 			t.Errorf("handler returned unexpected bonding mode: got %v want %v",
-				hw.Metadata.BondingMode, test.bondingMode)
+				metadata.BondingMode, test.bondingMode)
 		}
 	}
 }

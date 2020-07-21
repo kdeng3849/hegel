@@ -59,16 +59,20 @@ func getMetadata(w http.ResponseWriter, r *http.Request) {
 		if userIP != "" {
 			metrics.MetadataRequests.Inc()
 			logger.With("userIP", userIP).Info("Actual IP is : ")
-			ehw, err := getByIP(context.Background(), hegelServer, userIP)
+			hw, err := getByIP(context.Background(), hegelServer, userIP)
 			if err != nil {
 				metrics.Errors.WithLabelValues("metadata", "lookup").Inc()
 				logger.Info("Error in finding or exporting hardware ", err)
 				w.WriteHeader(http.StatusInternalServerError)
 				return
 			}
+			md, err := exportMetadata(hw)
+			if err != nil {
+				logger.Error(err, "Error in exporting hardware metadata")
+			}
 			w.WriteHeader(http.StatusOK)
 			w.Header().Set("Content-Type", "application/json")
-			_, err = w.Write(ehw)
+			_, err = w.Write(md)
 			if err != nil {
 				logger.Error(err, "failed to write Metadata")
 			}
